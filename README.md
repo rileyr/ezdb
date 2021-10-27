@@ -58,3 +58,28 @@ By default, EZDB uses the default postgres environment variables:
   - `PGHOST` - database host
   - `PGDATABASE` - database name
   - `PGPORT` - database port
+
+## CLI
+
+You can use the entrypoint defined in `./cmd/cli/main.go` as a standalone entrypoint, or, you can include it into your application's CLI:
+
+```golang
+package main
+
+import(
+  "github.com/spf13/cobra"
+  "github.com/rileyr/ezdb/cmd"
+)
+
+func myAppCLI() *cobra.Command {
+  c := &cobra.Command{}
+  // blah blah blah
+  return c
+}
+
+func main() {
+  c := myAppCLI()
+  c.AddCommand(cmd.NewCommand())
+  c.Execute()
+}
+```
