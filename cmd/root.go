@@ -28,8 +28,18 @@ var (
 	migrationDir string
 )
 
-func createDB(opts ...ezdb.Option) func(c *cobra.Command, args []string) error {
+func setupEzdbInstance(
+	preRunE func(*cobra.Command, []string) error,
+	opts ...ezdb.Option,
+) func(*cobra.Command, []string) error {
 	return func(c *cobra.Command, args []string) error {
+		// If the original base command has a PRE configured, call it first:
+		if preRunE != nil {
+			if err := preRunE(c, args); err != nil {
+				return err
+			}
+		}
+
 		wd, err := os.Getwd()
 		if err != nil {
 			return errors.Wrap(err, "get wd error")

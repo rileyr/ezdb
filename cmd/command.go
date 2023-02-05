@@ -14,11 +14,7 @@ func NewCommand(opts ...ezdb.Option) *cobra.Command {
 }
 
 func ConfigureCommand(c *cobra.Command, opts ...ezdb.Option) {
-	if c.PersistentPreRunE != nil {
-		panic("PersistentPreRunE already set on db command!!!")
-	}
-
-	c.PersistentPreRunE = createDB(opts...)
+	c.PersistentPreRunE = setupEzdbInstance(c.PersistentPreRunE, opts...)
 	c.AddCommand(newCreateCommand())
 	c.AddCommand(newCreateMigrationCommand())
 	c.AddCommand(newMigrateCommand())
