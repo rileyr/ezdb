@@ -17,7 +17,6 @@ func newRootCommand(opts ...ezdb.Option) *cobra.Command {
 
 	Set connection information in the environment via the PG* env vars.
 		`,
-		PersistentPreRunE: createDB(opts...),
 	}
 
 	c.PersistentFlags().StringVarP(&migrationDir, "migrations", "m", "./db/migrations", "path to migrations dir")
