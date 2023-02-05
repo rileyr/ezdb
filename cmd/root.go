@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newRootCommand() *cobra.Command {
+func newRootCommand(opts ...ezdb.Option) *cobra.Command {
 	c := &cobra.Command{
 		Use: "db",
 		Long: `
@@ -17,7 +17,7 @@ func newRootCommand() *cobra.Command {
 
 	Set connection information in the environment via the PG* env vars.
 		`,
-		PersistentPreRunE: createDB,
+		PersistentPreRunE: createDB(opts...),
 	}
 
 	c.PersistentFlags().StringVarP(&migrationDir, "migrations", "m", "./db/migrations", "path to migrations dir")
@@ -29,13 +29,16 @@ var (
 	migrationDir string
 )
 
-func createDB(c *cobra.Command, args []string) error {
-	wd, err := os.Getwd()
-	if err != nil {
-		return errors.Wrap(err, "get wd error")
-	}
-	migrationDir := path.Join(wd, migrationDir)
+func createDB(opts ...ezdb.Option) func(c *cobra.Command, args []string) error {
+	return func(c *cobra.Command, args []string) error {
+		wd, err := os.Getwd()
+		if err != nil {
+			return errors.Wrap(err, "get wd error")
+		}
+		migrationDir := path.Join(wd, migrationDir)
 
-	db = ezdb.New(ezdb.WithMigrationDir(migrationDir))
-	return nil
+		opts = append(opts, ezdb.WithMigrationDir(migrationDir))
+		db = ezdb.New(opts...)
+		return nil
+	}
 }
