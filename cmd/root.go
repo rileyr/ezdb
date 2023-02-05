@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"path"
 
@@ -30,7 +31,8 @@ var (
 
 func setupEzdbInstance(
 	preRunE func(*cobra.Command, []string) error,
-	opts ...ezdb.Option,
+	dynamicOpts func() ([]ezdb.Option, error),
+	staticOpts ...ezdb.Option,
 ) func(*cobra.Command, []string) error {
 	return func(c *cobra.Command, args []string) error {
 		// If the original base command has a PRE configured, call it first:
@@ -46,7 +48,14 @@ func setupEzdbInstance(
 		}
 		migrationDir := path.Join(wd, migrationDir)
 
-		opts = append(opts, ezdb.WithMigrationDir(migrationDir))
+		opts := append(staticOpts, ezdb.WithMigrationDir(migrationDir))
+		if dynamicOpts != nil {
+			moreOpts, err := dynamicOpts()
+			if err != nil {
+				return fmt.Errorf("dynamic opts error: %w", err)
+			}
+			opts = append(opts, moreOpts...)
+		}
 		db = ezdb.New(opts...)
 		return nil
 	}

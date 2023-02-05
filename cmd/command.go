@@ -8,13 +8,17 @@ import (
 func NewCommand(opts ...ezdb.Option) *cobra.Command {
 	c := newRootCommand(opts...)
 
-	ConfigureCommand(c, opts...)
+	ConfigureCommand(c, nil, opts...)
 
 	return c
 }
 
-func ConfigureCommand(c *cobra.Command, opts ...ezdb.Option) {
-	c.PersistentPreRunE = setupEzdbInstance(c.PersistentPreRunE, opts...)
+func ConfigureCommand(
+	c *cobra.Command,
+	dynamicOpts func() ([]ezdb.Option, error),
+	staticOpts ...ezdb.Option,
+) {
+	c.PersistentPreRunE = setupEzdbInstance(c.PersistentPreRunE, dynamicOpts, staticOpts...)
 	c.AddCommand(newCreateCommand())
 	c.AddCommand(newCreateMigrationCommand())
 	c.AddCommand(newMigrateCommand())
