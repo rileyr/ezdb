@@ -7,6 +7,13 @@ type Connector interface {
 	Data() (ConnectionData, error)
 }
 
+// ConnectorFunc is a helper type for function-only implementations of Connector
+type ConnectorFunc func() (ConnectionData, error)
+
+func (cf ConnectorFunc) Data() (ConnectionData, error) {
+	return cf()
+}
+
 var _ Connector = &EnvConnector{}
 
 // EnvConnector implements Connector by pulling values from environment variables.
