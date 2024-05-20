@@ -3,9 +3,12 @@ package ezdb
 import (
 	"database/sql"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
-	"time"
+	"sort"
+	"strconv"
+	"strings"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
@@ -68,17 +71,27 @@ func (db *DB) CreateMigration(name string) error {
 		return errors.New("cannot create migration without name")
 	}
 
-	t := time.Now().UTC()
-	migrationName := fmt.Sprintf(
-		"%d%02d%02d%0d%02d%02d_%s",
-		t.Year(),
-		int(t.Month()),
-		t.Day(),
-		t.Minute(),
-		t.Hour(),
-		t.Second(),
-		name,
-	)
+	files, err := ioutil.ReadDir(db.migrationDir)
+	if err != nil {
+		return fmt.Errorf("failed to prepare filename: %w", err)
+	}
+
+	fileVersions := []int{}
+	for _, file := range files {
+		n := file.Name()
+		if strings.Contains(n, ".sql") && strings.Contains(n, "_") { // i am not smart enuf for a regex
+			parts := strings.Split(n, "_")
+			if num, err := strconv.Atoi(parts[0]); err == nil {
+				fileVersions = append(fileVersions, num)
+			}
+		}
+	}
+
+	sort.SliceStable(fileVersions, func(i, j int) bool {
+		return fileVersions[i] < fileVersions[j]
+	})
+
+	migrationName := fmt.Sprintf("%04d_%s", fileVersions[len(fileVersions)-1]+1, name)
 
 	create := func(filepath string) error {
 		fmt.Printf("creating file: %s\n", filepath)
