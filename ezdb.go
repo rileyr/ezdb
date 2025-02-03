@@ -20,11 +20,14 @@ import (
 type DB struct {
 	connector    Connector
 	migrationDir string
+	downEnabled  bool
 }
 
 // New returns a new DB with the given options.
 func New(opts ...Option) *DB {
-	d := &DB{}
+	d := &DB{
+		downEnabled: true,
+	}
 
 	for _, opt := range opts {
 		opt(d)
@@ -108,8 +111,11 @@ func (db *DB) CreateMigration(name string) error {
 	if err := create(fmt.Sprintf("%s.up.sql", path)); err != nil {
 		return err
 	}
-	if err := create(fmt.Sprintf("%s.down.sql", path)); err != nil {
-		return err
+
+	if db.downEnabled {
+		if err := create(fmt.Sprintf("%s.down.sql", path)); err != nil {
+			return err
+		}
 	}
 
 	return nil

@@ -13,3 +13,9 @@ func WithMigrationDir(dir string) Option {
 		db.migrationDir = dir
 	}
 }
+
+func WithDownMigrations(enabled bool) Option {
+	return func(db *DB) {
+		db.downEnabled = enabled
+	}
+}
