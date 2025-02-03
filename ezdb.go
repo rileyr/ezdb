@@ -3,7 +3,6 @@ package ezdb
 import (
 	"database/sql"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"sort"
@@ -71,7 +70,7 @@ func (db *DB) CreateMigration(name string) error {
 		return errors.New("cannot create migration without name")
 	}
 
-	files, err := ioutil.ReadDir(db.migrationDir)
+	files, err := os.ReadDir(db.migrationDir)
 	if err != nil {
 		return fmt.Errorf("failed to prepare filename: %w", err)
 	}
@@ -91,7 +90,13 @@ func (db *DB) CreateMigration(name string) error {
 		return fileVersions[i] < fileVersions[j]
 	})
 
-	migrationName := fmt.Sprintf("%04d_%s", fileVersions[len(fileVersions)-1]+1, name)
+	var newVersion int
+	if len(fileVersions) > 0 {
+		newVersion = fileVersions[len(fileVersions)-1] + 1
+	} else {
+		newVersion = 1
+	}
+	migrationName := fmt.Sprintf("%04d_%s", newVersion, name)
 
 	create := func(filepath string) error {
 		fmt.Printf("creating file: %s\n", filepath)
