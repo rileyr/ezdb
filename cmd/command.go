@@ -5,8 +5,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewCommand(opts ...ezdb.Option) *cobra.Command {
-	c := newRootCommand(opts...)
+func NewCommand(cmdName string, opts ...ezdb.Option) *cobra.Command {
+	c := newRootCommand(cmdName, opts...)
 
 	ConfigureCommand(c, nil, opts...)
 

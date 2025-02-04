@@ -10,9 +10,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newRootCommand(opts ...ezdb.Option) *cobra.Command {
+func newRootCommand(cmdName string, opts ...ezdb.Option) *cobra.Command {
 	c := &cobra.Command{
-		Use: "db",
+		Use: cmdName,
 		Long: `
 	ezdb database operations
 
