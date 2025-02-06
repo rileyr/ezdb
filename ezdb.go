@@ -3,7 +3,7 @@ package ezdb
 import (
 	"database/sql"
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 	"sort"
 	"strconv"
@@ -18,6 +18,8 @@ import (
 
 // DB implements the functionality provided by the ezdb package
 type DB struct {
+	// Name is a bit of a hack, it just allows the CLI consumers to inject the cli name, if needed.
+	Name         string
 	connector    Connector
 	migrationDir string
 	downEnabled  bool
@@ -27,6 +29,7 @@ type DB struct {
 func New(opts ...Option) *DB {
 	d := &DB{
 		downEnabled: true,
+		Name:        "db",
 	}
 
 	for _, opt := range opts {
@@ -162,7 +165,7 @@ func (db *DB) migrateWith(mig *migrate.Migrate, do func() error) error {
 		return err
 	}
 
-	log.Printf("migrated %d to %d\n", currentDbVersion, newDbVersion)
+	slog.Default().Info("migrated database", "old_version", currentDbVersion, "new_version", newDbVersion, "name", db.Name)
 	return nil
 }
 

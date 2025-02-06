@@ -11,8 +11,10 @@ import (
 )
 
 func newRootCommand(opts ...ezdb.Option) *cobra.Command {
+	tmp := ezdb.New(opts...)
+
 	c := &cobra.Command{
-		Use: "db",
+		Use: tmp.Name,
 		Long: `
 	ezdb database operations
 

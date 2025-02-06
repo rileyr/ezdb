@@ -2,6 +2,12 @@ package ezdb
 
 type Option func(*DB)
 
+func WithName(name string) Option {
+	return func(db *DB) {
+		db.Name = name
+	}
+}
+
 func WithConnector(c Connector) Option {
 	return func(db *DB) {
 		db.connector = c
