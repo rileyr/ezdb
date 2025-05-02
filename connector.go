@@ -23,15 +23,19 @@ type EnvConnector struct {
 	HostKey     string
 	DbKey       string
 	PortKey     string
+	SslKey      string
+	SslCertKey  string
 }
 
 func (e EnvConnector) Data() (ConnectionData, error) {
 	return ConnectionData{
-		User:     os.Getenv(e.UserKey),
-		Password: os.Getenv(e.PasswordKey),
-		Host:     os.Getenv(e.HostKey),
-		Db:       os.Getenv(e.DbKey),
-		Port:     os.Getenv(e.PortKey),
+		User:        os.Getenv(e.UserKey),
+		Password:    os.Getenv(e.PasswordKey),
+		Host:        os.Getenv(e.HostKey),
+		Db:          os.Getenv(e.DbKey),
+		Port:        os.Getenv(e.PortKey),
+		SslMode:     os.Getenv(e.SslKey),
+		SslRootCert: os.Getenv(e.SslCertKey),
 	}, nil
 }
 
@@ -42,5 +46,7 @@ func NewDefaultEnvConnector() EnvConnector {
 		HostKey:     "PGHOST",
 		DbKey:       "PGDATABASE",
 		PortKey:     "PGPORT",
+		SslKey:      "PGSSLMODE",
+		SslCertKey:  "PGSSLROOTCERT",
 	}
 }
