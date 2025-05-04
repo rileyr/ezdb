@@ -32,6 +32,11 @@ func (cd ConnectionData) DSN() string {
 	return v
 }
 func (cd ConnectionData) ConnString() string {
+	ssl := cd.SslMode
+	if ssl == "" {
+		ssl = "disable"
+	}
+
 	return fmt.Sprintf(
 		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
 		cd.User,
@@ -39,6 +44,6 @@ func (cd ConnectionData) ConnString() string {
 		cd.Host,
 		cd.Port,
 		cd.Db,
-		cd.SslMode,
+		ssl,
 	)
 }
