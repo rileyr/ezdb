@@ -25,3 +25,13 @@ func WithDownMigrations(enabled bool) Option {
 		db.downEnabled = enabled
 	}
 }
+
+// WithSchema pins the schema (search_path) used for the connection, including
+// the schema that golang-migrate reads/writes its schema_migrations table in.
+// Use this when the login role's default search_path does not point at the
+// schema that holds the application's objects.
+func WithSchema(name string) Option {
+	return func(db *DB) {
+		db.schema = name
+	}
+}
