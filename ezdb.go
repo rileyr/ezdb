@@ -23,6 +23,7 @@ type DB struct {
 	connector    Connector
 	migrationDir string
 	downEnabled  bool
+	schema       string
 }
 
 // New returns a new DB with the given options.
@@ -174,13 +175,21 @@ func (db *DB) buildMigrator() (*migrate.Migrate, error) {
 	if err != nil {
 		return nil, err
 	}
+	if db.schema != "" {
+		connData.SearchPath = db.schema
+	}
 
 	conn, err := sql.Open("postgres", connData.ConnString())
 	if err != nil {
 		return nil, errors.Wrap(err, "open db error")
 	}
 
-	driver, err := postgres.WithInstance(conn, &postgres.Config{})
+	cfg := &postgres.Config{}
+	if db.schema != "" {
+		cfg.SchemaName = db.schema
+	}
+
+	driver, err := postgres.WithInstance(conn, cfg)
 	if err != nil {
 		return nil, errors.Wrap(err, "open driver error")
 	}
